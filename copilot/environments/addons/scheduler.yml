@@ -35,7 +35,7 @@ Resources:
       GroupName: default
       Name: !Sub ${App}-${Env}-stop-service
       Description: "Stop ECS service during off-hours"
-      ScheduleExpression: "cron(15 18 ? * * *)"
+      ScheduleExpression: "cron(25 18 ? * * *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
       State: "ENABLED"
       Target:
@@ -43,8 +43,8 @@ Resources:
         RoleArn: !GetAtt SchedulerRole.Arn
         Input: !Sub |
           {
-            "Cluster": "${App}-${Env}",
-            "Service": "${App}-${Env}-api",
+            "Cluster": "${App}-${Env}-Cluster-vmNvReXCNSJW",
+            "Service": "${App}-${Env}-api-Service-aqgW5mTWocdS",
             "DesiredCount": 0
           }
 
@@ -63,7 +63,7 @@ Resources:
         RoleArn: !GetAtt SchedulerRole.Arn
         Input: !Sub |
           {
-            "Cluster": "${App}-${Env}",
-            "Service": "${App}-${Env}-api",
+            "Cluster": "${App}-${Env}-Cluster-vmNvReXCNSJW",
+            "Service": "${App}-${Env}-api-Service-aqgW5mTWocdS",
             "DesiredCount": 1
           }
