@@ -35,14 +35,18 @@ Resources:
       GroupName: default
       Name: !Sub ${App}-${Env}-stop-service
       Description: "Stop ECS service during off-hours"
-      ScheduleExpression: "cron(59 17 ? * * *)"
+      ScheduleExpression: "cron(15 18 ? * * *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
+      State: "ENABLED"
       Target:
-        Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
+        Arn: "arn:aws:scheduler:::aws-sdk:ecs:updateService"
         RoleArn: !GetAtt SchedulerRole.Arn
-        EcsParameters:
-          TaskCount: 0
-          TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
+        Input: !Sub |
+          {
+            "Cluster": "${App}-${Env}",
+            "Service": "${App}-${Env}-api",
+            "DesiredCount": 0
+          }
 
   StartSchedule:
     Type: AWS::Scheduler::Schedule
@@ -55,8 +59,11 @@ Resources:
       ScheduleExpression: "cron(0 12 ? * MON-FRI *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
       Target:
-        Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
+        Arn: "arn:aws:scheduler:::aws-sdk:ecs:updateService"
         RoleArn: !GetAtt SchedulerRole.Arn
-        EcsParameters:
-          TaskCount: 1
-          TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
+        Input: !Sub |
+          {
+            "Cluster": "${App}-${Env}",
+            "Service": "${App}-${Env}-api",
+            "DesiredCount": 1
+          }
