@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page</title>
+</head>
+<body>
+<h1>Hello Copilot!</h1>
+<p>Current Time: <span id="time"></span></p>
+
+<script>
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('time').textContent = now.toLocaleString('ja-JP');
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+</script>
+</body>
+</html>

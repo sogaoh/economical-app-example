@@ -1,0 +1,58 @@
+Parameters:
+  App:
+    Type: String
+  Env:
+    Type: String
+
+Resources:
+  SchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${App}-${Env}-scheduler-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:UpdateService
+                  #- rds:StopDBInstance
+                  #- rds:StartDBInstance
+                Resource: '*'
+
+  StopResourcesRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub ${App}-${Env}-stop-resources
+      Description: "Stop resources during off-hours"
+      ScheduleExpression: "cron(0 22 ? * MON-FRI *)"
+      State: ENABLED
+      Targets:
+        - Id: StopECSService
+          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
+          RoleArn: !GetAtt SchedulerRole.Arn
+          EcsParameters:
+            TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
+            TaskCount: 0
+
+  StartResourcesRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub ${App}-${Env}-start-resources
+      Description: "Start resources during work hours"
+      ScheduleExpression: "cron(0 8 ? * MON-FRI *)"
+      State: ENABLED
+      Targets:
+        - Id: StartECSService
+          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
+          RoleArn: !GetAtt SchedulerRole.Arn
+          EcsParameters:
+            TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
+            TaskCount: 1

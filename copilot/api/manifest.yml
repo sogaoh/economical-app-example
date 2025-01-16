@@ -1,0 +1,19 @@
+name: api
+type: Backend Service  # Load Balancer なしの Backend Service タイプを使用
+
+image:
+  build: Dockerfile
+  port: 80
+  platform: linux/arm64
+
+cpu: 256
+memory: 512
+count:
+  range: 0-1
+  cooldown:
+    in: 30s
+    out: 30s
+
+network:
+  vpc:
+    placement: public  # パブリックサブネットに配置

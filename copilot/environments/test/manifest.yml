@@ -1,0 +1,10 @@
+name: test
+type: Environment
+
+network:
+  vpc:
+    id: ${COPILOT_VPC_ID}
+    subnets:
+      public:
+        - id: ${COPILOT_SUBNET_PUBLIC_A}
+        - id: ${COPILOT_SUBNET_PUBLIC_D}
