@@ -27,34 +27,30 @@ Resources:
                   #- rds:StartDBInstance
                 Resource: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
 
-  StopResourcesRule:
-    Type: AWS::Events::Rule
+  StopSchedule:
+    Type: AWS::Scheduler::Schedule
     Properties:
-      Name: !Sub ${App}-${Env}-stop-resources
-      Description: "Stop resources during off-hours"
+      Name: !Sub ${App}-${Env}-stop-service
+      Description: "Stop ECS service during off-hours"
+      FlexibleTimeWindow:
+        Mode: "OFF"
       ScheduleExpression: "cron(10 17 ? * MON-FRI *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
-      State: ENABLED
-      Targets:
-        - Id: StopECSService
-          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
-          RoleArn: !GetAtt SchedulerRole.Arn
-          EcsParameters:
-            TaskCount: 0
-            TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
+      Target:
+        Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: '{"desiredCount": 0}'
 
-  StartResourcesRule:
-    Type: AWS::Events::Rule
+  StartSchedule:
+    Type: AWS::Scheduler::Schedule
     Properties:
-      Name: !Sub ${App}-${Env}-start-resources
-      Description: "Start resources during work hours"
+      Name: !Sub ${App}-${Env}-start-service
+      Description: "Start ECS service during work hours"
+      FlexibleTimeWindow:
+        Mode: "OFF"
       ScheduleExpression: "cron(0 12 ? * MON-FRI *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
-      State: ENABLED
-      Targets:
-        - Id: StartECSService
-          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
-          RoleArn: !GetAtt SchedulerRole.Arn
-          EcsParameters:
-            TaskCount: 1
-            TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
+      Target:
+        Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: '{"desiredCount": 1}'
