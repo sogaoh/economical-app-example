@@ -35,7 +35,7 @@ Resources:
       GroupName: default
       Name: !Sub ${App}-${Env}-stop-service
       Description: "Stop ECS service during off-hours"
-      ScheduleExpression: "cron(25 18 ? * * *)"
+      ScheduleExpression: "cron(00 15 ? * * *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
       State: "ENABLED"
       Target:
