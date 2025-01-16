@@ -30,11 +30,12 @@ Resources:
   StopSchedule:
     Type: AWS::Scheduler::Schedule
     Properties:
-      Name: !Sub ${App}-${Env}-stop-service
-      Description: "Stop ECS service during off-hours"
       FlexibleTimeWindow:
         Mode: "OFF"
-      ScheduleExpression: "cron(10 17 ? * MON-FRI *)"
+      GroupName: default
+      Name: !Sub ${App}-${Env}-stop-service
+      Description: "Stop ECS service during off-hours"
+      ScheduleExpression: "cron(20 17 ? * MON-FRI *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
       Target:
         Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
@@ -44,10 +45,11 @@ Resources:
   StartSchedule:
     Type: AWS::Scheduler::Schedule
     Properties:
-      Name: !Sub ${App}-${Env}-start-service
-      Description: "Start ECS service during work hours"
       FlexibleTimeWindow:
         Mode: "OFF"
+      GroupName: default
+      Name: !Sub ${App}-${Env}-start-service
+      Description: "Start ECS service during work hours"
       ScheduleExpression: "cron(0 12 ? * MON-FRI *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
       Target:
