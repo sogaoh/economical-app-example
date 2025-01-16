@@ -35,13 +35,12 @@ Resources:
       GroupName: default
       Name: !Sub ${App}-${Env}-stop-service
       Description: "Stop ECS service during off-hours"
-      ScheduleExpression: "cron(40 17 ? * * *)"
+      ScheduleExpression: "cron(50 17 ? * * *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
-      State: ENABLED
       Target:
-        Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
+        Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
         RoleArn: !GetAtt SchedulerRole.Arn
-        Input: !Sub '{"service":"${App}-${Env}-api", "desiredCount":0}'
+        Input: !Sub '{"cluster":"${App}-${Env}","service":"${App}-${Env}-api","desiredCount":0}'
 
   StartSchedule:
     Type: AWS::Scheduler::Schedule
@@ -53,8 +52,7 @@ Resources:
       Description: "Start ECS service during work hours"
       ScheduleExpression: "cron(0 12 ? * MON-FRI *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
-      State: ENABLED
       Target:
-        Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
+        Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
         RoleArn: !GetAtt SchedulerRole.Arn
-        Input: !Sub '{"service":"${App}-${Env}-api", "desiredCount":1}'
+        Input: !Sub '{"cluster":"${App}-${Env}","service":"${App}-${Env}-api","desiredCount":1}'
