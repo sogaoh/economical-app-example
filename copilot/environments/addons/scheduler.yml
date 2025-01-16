@@ -35,12 +35,12 @@ Resources:
       GroupName: default
       Name: !Sub ${App}-${Env}-stop-service
       Description: "Stop ECS service during off-hours"
-      ScheduleExpression: "cron(30 17 ? * * *)"
+      ScheduleExpression: "cron(35 17 ? * * *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
       Target:
         Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
         RoleArn: !GetAtt SchedulerRole.Arn
-        Input: '{"desiredCount":0}'
+        Input: '{"detail":{"desiredCount":0}}'
 
   StartSchedule:
     Type: AWS::Scheduler::Schedule
@@ -55,4 +55,4 @@ Resources:
       Target:
         Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
         RoleArn: !GetAtt SchedulerRole.Arn
-        Input: '{"desiredCount":1}'
+        Input: '{"detail":{"desiredCount":1}}'
