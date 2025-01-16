@@ -1,0 +1,69 @@
+Parameters:
+  App:
+    Type: String
+  Env:
+    Type: String
+
+Resources:
+  SchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${App}-${Env}-scheduler-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:UpdateService
+                  #- rds:StopDBInstance
+                  #- rds:StartDBInstance
+                Resource: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
+
+  StopSchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      GroupName: default
+      Name: !Sub ${App}-${Env}-stop-service
+      Description: "Stop ECS service during off-hours"
+      ScheduleExpression: "cron(15 18 ? * * *)"
+      ScheduleExpressionTimezone: "Asia/Tokyo"
+      State: "ENABLED"
+      Target:
+        Arn: "arn:aws:scheduler:::aws-sdk:ecs:updateService"
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: !Sub |
+          {
+            "Cluster": "${App}-${Env}",
+            "Service": "${App}-${Env}-api",
+            "DesiredCount": 0
+          }
+
+  StartSchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      GroupName: default
+      Name: !Sub ${App}-${Env}-start-service
+      Description: "Start ECS service during work hours"
+      ScheduleExpression: "cron(0 12 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: "Asia/Tokyo"
+      Target:
+        Arn: "arn:aws:scheduler:::aws-sdk:ecs:updateService"
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: !Sub |
+          {
+            "Cluster": "${App}-${Env}",
+            "Service": "${App}-${Env}-api",
+            "DesiredCount": 1
+          }
