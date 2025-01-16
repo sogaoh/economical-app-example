@@ -25,34 +25,32 @@ Resources:
                   - ecs:UpdateService
                   #- rds:StopDBInstance
                   #- rds:StartDBInstance
-                Resource: '*'
+                Resource: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
 
   StopResourcesRule:
     Type: AWS::Events::Rule
     Properties:
       Name: !Sub ${App}-${Env}-stop-resources
       Description: "Stop resources during off-hours"
-      ScheduleExpression: "cron(0 22 ? * MON-FRI *)"
+      ScheduleExpression: "cron(10 17 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: "Asia/Tokyo"
       State: ENABLED
       Targets:
         - Id: StopECSService
-          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
+          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
           RoleArn: !GetAtt SchedulerRole.Arn
-          EcsParameters:
-            TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
-            TaskCount: 0
+          Input: '{"desiredCount": 0}'
 
   StartResourcesRule:
     Type: AWS::Events::Rule
     Properties:
       Name: !Sub ${App}-${Env}-start-resources
       Description: "Start resources during work hours"
-      ScheduleExpression: "cron(0 8 ? * MON-FRI *)"
+      ScheduleExpression: "cron(0 12 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: "Asia/Tokyo"
       State: ENABLED
       Targets:
         - Id: StartECSService
-          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
+          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
           RoleArn: !GetAtt SchedulerRole.Arn
-          EcsParameters:
-            TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
-            TaskCount: 1
+          Input: '{"desiredCount": 1}'
