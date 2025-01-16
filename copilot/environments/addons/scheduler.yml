@@ -13,7 +13,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: events.amazonaws.com
+              Service: scheduler.amazonaws.com
             Action: sts:AssumeRole
       Policies:
         - PolicyName: !Sub ${App}-${Env}-scheduler-policy
@@ -37,9 +37,11 @@ Resources:
       State: ENABLED
       Targets:
         - Id: StopECSService
-          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
+          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
           RoleArn: !GetAtt SchedulerRole.Arn
-          Input: '{"desiredCount": 0}'
+          EcsParameters:
+            TaskCount: 0
+            TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
 
   StartResourcesRule:
     Type: AWS::Events::Rule
@@ -51,6 +53,8 @@ Resources:
       State: ENABLED
       Targets:
         - Id: StartECSService
-          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
+          Arn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}
           RoleArn: !GetAtt SchedulerRole.Arn
-          Input: '{"desiredCount": 1}'
+          EcsParameters:
+            TaskCount: 1
+            TaskDefinitionArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:task-definition/${App}-${Env}-api
