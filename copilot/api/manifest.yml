@@ -9,15 +9,13 @@ image:
 
 cpu: 256
 memory: 512
-count: 1
+count:
+  spot: 1
 #count:
 #  range: 0-1
 #  cooldown:
 #    in: 30s
 #    out: 30s
-
-capacity:
-  type: FARGATE_SPOT
 
 logging:
   retention: 3
