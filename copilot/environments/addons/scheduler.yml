@@ -23,9 +23,11 @@ Resources:
               - Effect: Allow
                 Action:
                   - ecs:UpdateService
-                  #- rds:StopDBInstance
-                  #- rds:StartDBInstance
-                Resource: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}/${App}-${Env}-api
+                  - ecs:DescribeServices
+                  - ecs:ListServices
+                Resource:
+                  - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}-*
+                  - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}-*/*
 
   StopSchedule:
     Type: AWS::Scheduler::Schedule
@@ -35,7 +37,7 @@ Resources:
       GroupName: default
       Name: !Sub ${App}-${Env}-stop-service
       Description: "Stop ECS service during off-hours"
-      ScheduleExpression: "cron(00 15 ? * * *)"
+      ScheduleExpression: "cron(00 13 ? * * *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
       State: "ENABLED"
       Target:
@@ -56,8 +58,9 @@ Resources:
       GroupName: default
       Name: !Sub ${App}-${Env}-start-service
       Description: "Start ECS service during work hours"
-      ScheduleExpression: "cron(0 12 ? * MON-FRI *)"
+      ScheduleExpression: "cron(00 12 ? * MON-FRI *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
+      State: "DISABLED"
       Target:
         Arn: "arn:aws:scheduler:::aws-sdk:ecs:updateService"
         RoleArn: !GetAtt SchedulerRole.Arn
