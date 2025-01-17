@@ -4,6 +4,12 @@ Parameters:
   Env:
     Type: String
 
+Conditions:
+  IsNotProduction: !Not
+    - !Equals
+      - !Ref Env
+      - production
+
 Resources:
   SchedulerRole:
     Type: AWS::IAM::Role
@@ -31,6 +37,7 @@ Resources:
 
   StopSchedule:
     Type: AWS::Scheduler::Schedule
+    Condition: IsNotProduction
     Properties:
       FlexibleTimeWindow:
         Mode: "OFF"
@@ -52,6 +59,7 @@ Resources:
 
   StartSchedule:
     Type: AWS::Scheduler::Schedule
+    Condition: IsNotProduction
     Properties:
       FlexibleTimeWindow:
         Mode: "OFF"
