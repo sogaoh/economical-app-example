@@ -31,9 +31,12 @@ Resources:
                   - ecs:UpdateService
                   - ecs:DescribeServices
                   - ecs:ListServices
+                  - rds:StartDBCluster
+                  - rds:StopDBCluster
                 Resource:
                   - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}-*
                   - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}-*/*
+                  - !Sub arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:economical-app-db
 
   StopSchedule:
     Type: AWS::Scheduler::Schedule
@@ -57,6 +60,26 @@ Resources:
             "DesiredCount": 0
           }
 
+  StopRDSSchedule:
+    Type: AWS::Scheduler::Schedule
+    Condition: IsNotProduction
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      GroupName: default
+      Name: !Sub ${App}-${Env}-stop-rds
+      Description: "Stop RDS cluster during off-hours"
+      ScheduleExpression: "cron(05 13 ? * * *)"
+      ScheduleExpressionTimezone: "Asia/Tokyo"
+      State: "ENABLED"
+      Target:
+        Arn: "arn:aws:scheduler:::aws-sdk:rds:stopDBCluster"
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: !Sub |
+          {
+            "DBClusterIdentifier": "economical-app-db"
+          }
+
   StartSchedule:
     Type: AWS::Scheduler::Schedule
     Condition: IsNotProduction
@@ -77,4 +100,24 @@ Resources:
             "Cluster": "${App}-${Env}-Cluster-vmNvReXCNSJW",
             "Service": "${App}-${Env}-api-Service-aqgW5mTWocdS",
             "DesiredCount": 1
+          }
+
+  StartRDSSchedule:
+    Type: AWS::Scheduler::Schedule
+    Condition: IsNotProduction
+    Properties:
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      GroupName: default
+      Name: !Sub ${App}-${Env}-start-rds
+      Description: "Start RDS cluster during work hours"
+      ScheduleExpression: "cron(55 11 ? * MON-FRI *)"
+      ScheduleExpressionTimezone: "Asia/Tokyo"
+      State: "DISABLED"
+      Target:
+        Arn: "arn:aws:scheduler:::aws-sdk:rds:startDBCluster"
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: !Sub |
+          {
+            "DBClusterIdentifier": "economical-app-db"
           }
