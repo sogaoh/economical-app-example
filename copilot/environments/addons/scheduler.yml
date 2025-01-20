@@ -77,7 +77,7 @@ Resources:
         RoleArn: !GetAtt SchedulerRole.Arn
         Input: !Sub |
           {
-            "DBClusterIdentifier": "economical-app-db"
+            "DbClusterIdentifier": "economical-app-db"
           }
 
   StartSchedule:
@@ -119,5 +119,5 @@ Resources:
         RoleArn: !GetAtt SchedulerRole.Arn
         Input: !Sub |
           {
-            "DBClusterIdentifier": "economical-app-db"
+            "DbClusterIdentifier": "economical-app-db"
           }
