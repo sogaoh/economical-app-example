@@ -111,7 +111,7 @@ Resources:
       GroupName: default
       Name: !Sub ${App}-${Env}-start-rds
       Description: "Start RDS cluster during work hours"
-      ScheduleExpression: "cron(55 11 ? * MON-FRI *)"
+      ScheduleExpression: "cron(45 11 ? * MON-FRI *)"
       ScheduleExpressionTimezone: "Asia/Tokyo"
       State: "DISABLED"
       Target:
