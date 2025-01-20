@@ -1,2 +1,32 @@
 .envrc
 copilot/.workspace
+
+**/terraform.d
+**/generated
+**/.envrc
+**/.terraform
+**/*.tfvars
+**/*.tfvars.*
+**/*.tfvars.json
+**/*.tfstate
+**/*.tfstate.*
+**/terraform.hcl
+
+# Terragrunt `overwrite_terragrunt` files
+**/_provider.tf
+**/_variables.tf
+!**/terragrunt.hcl
+!tg/terragrunt.hcl
+# Terragrunt `overwrite_terragrunt` files じゃないけどリポジトリに入れない
+**/_locals.tf
+
+# Ignore Terragrunt cache directories
+**/.terragrunt-cache/*
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Ignore .terraform.lock.hcl files
+.terraform.lock.hcl
+
