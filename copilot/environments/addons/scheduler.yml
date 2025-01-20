@@ -3,6 +3,9 @@ Parameters:
     Type: String
   Env:
     Type: String
+  DBClusterIdentifier:
+    Type: String
+    Description: The identifier of the RDS DB cluster
 
 Conditions:
   IsNotProduction: !Not
@@ -36,7 +39,7 @@ Resources:
                 Resource:
                   - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}-*
                   - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}-*/*
-                  - !Sub arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:economical-app-db
+                  - !Sub arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:${DBClusterIdentifier}
 
   StopSchedule:
     Type: AWS::Scheduler::Schedule
@@ -77,7 +80,7 @@ Resources:
         RoleArn: !GetAtt SchedulerRole.Arn
         Input: !Sub |
           {
-            "DbClusterIdentifier": "economical-app-db"
+            "DbClusterIdentifier": "${DBClusterIdentifier}"
           }
 
   StartSchedule:
@@ -119,5 +122,5 @@ Resources:
         RoleArn: !GetAtt SchedulerRole.Arn
         Input: !Sub |
           {
-            "DbClusterIdentifier": "economical-app-db"
+            "DbClusterIdentifier": "${DBClusterIdentifier}"
           }
