@@ -1,0 +1,4 @@
+Parameters:
+  DBClusterIdentifier: economical-app-db
+  ECSClusterName: economical-app-example-test-Cluster-vmNvReXCNSJW
+  ECSServiceName: economical-app-example-test-api-Service-aqgW5mTWocdS

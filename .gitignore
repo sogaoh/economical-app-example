@@ -1,5 +1,6 @@
 .envrc
 copilot/.workspace
+copilot/environments/addons/addons.parameters.yml
 
 **/terraform.d
 **/generated
