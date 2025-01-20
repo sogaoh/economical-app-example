@@ -5,7 +5,10 @@ Parameters:
     Type: String
   DBClusterIdentifier:
     Type: String
-    Description: The identifier of the RDS DB cluster
+  ECSClusterName:
+    Type: String
+  ECSServiceName:
+    Type: String
 
 Conditions:
   IsNotProduction: !Not
@@ -37,8 +40,8 @@ Resources:
                   - rds:StartDBCluster
                   - rds:StopDBCluster
                 Resource:
-                  - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${App}-${Env}-*
-                  - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${App}-${Env}-*/*
+                  - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:cluster/${ECSClusterName}
+                  - !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:service/${ECSClusterName}/${ECSServiceName}
                   - !Sub arn:aws:rds:${AWS::Region}:${AWS::AccountId}:cluster:${DBClusterIdentifier}
 
   StopSchedule:
@@ -58,8 +61,8 @@ Resources:
         RoleArn: !GetAtt SchedulerRole.Arn
         Input: !Sub |
           {
-            "Cluster": "${App}-${Env}-Cluster-vmNvReXCNSJW",
-            "Service": "${App}-${Env}-api-Service-aqgW5mTWocdS",
+            "Cluster": "${ECSClusterName}",
+            "Service": "${ECSServiceName}",
             "DesiredCount": 0
           }
 
@@ -100,8 +103,8 @@ Resources:
         RoleArn: !GetAtt SchedulerRole.Arn
         Input: !Sub |
           {
-            "Cluster": "${App}-${Env}-Cluster-vmNvReXCNSJW",
-            "Service": "${App}-${Env}-api-Service-aqgW5mTWocdS",
+            "Cluster": "${ECSClusterName}",
+            "Service": "${ECSServiceName}",
             "DesiredCount": 1
           }
 
